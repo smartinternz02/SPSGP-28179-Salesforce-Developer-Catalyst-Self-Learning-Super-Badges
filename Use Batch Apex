@@ -1,0 +1,47 @@
+public class LeadProcessor implements Database.Batchable<sObject> { 
+   
+     public Database.QueryLocator start(Database.BatchableContext bc) {
+        // collect the batches of records or objects to be passed to execute
+          return Database.getQueryLocator([Select LeadSource From Lead ]);
+    }
+    public void execute(Database.BatchableContext bc, List<Lead> leads){
+         // process each batch of records
+            for (Lead Lead : leads) {
+                lead.LeadSource = 'Dreamforce';
+            }
+        update leads;
+    }    
+    public void finish(Database.BatchableContext bc){
+      }
+
+}
+
+
+
+test class//
+
+@isTest
+public class LeadProcessorTest {
+    
+        @testSetup
+    static void setup() {
+        List<Lead> leads = new List<Lead>();
+        for(Integer counter=0 ;counter <200;counter++){
+            Lead lead = new Lead();
+            lead.FirstName ='FirstName';
+            lead.LastName ='LastName'+counter;
+            lead.Company
+ ='demo'+counter;
+            leads.add(lead);
+        }        
+        insert leads;
+    }
+    
+    @isTest static void test() {
+        Test.startTest();
+        LeadProcessor leadProcessor = new LeadProcessor();
+        Id batchId = Database.executeBatch(leadProcessor);
+        Test.stopTest();   
+    }
+
+}
